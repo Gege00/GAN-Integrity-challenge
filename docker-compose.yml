@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+
+    backend:
+        build:
+            context: backend
+            dockerfile: Dockerfile
+        container_name: backend
+        restart: on-failure
+        ports:
+          - "8080:5000"
+        volumes:
+          - ./backend:/home/app
+
+    mongodb:
+        image: mongo:4.0.20
+        expose:
+          - "27017"
+        ports:
+          - "27018:27017"
+
+    mongo-seed:
+       build: ./database-seed
+       links:
+         - mongodb

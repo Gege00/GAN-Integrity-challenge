@@ -6,7 +6,7 @@ const app = require("express")();
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
-
+const mongo = require('./database/mongo.js')
 const home= require("./routes/home.js")
 
 dotenv.config();
@@ -47,7 +47,7 @@ process.on("SIGINT", () => {
   console.log("SIGINT signal received, closing the server");
   server.close(() => {
     console.log("Server closed");
-    process.exit(0);
+
   });
 });
 
@@ -56,6 +56,6 @@ process.on("SIGTERM", () => {
   console.log("SIGTERM signal received, closing the server");
   server.close(() => {
     console.log("Server closed");
-    process.exit(0);
+
   });
 });

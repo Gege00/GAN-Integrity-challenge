@@ -8,3 +8,8 @@ apps:
       PORT : 5000
     env_production:
       NODE_ENV: production
+  - script : ./worker.js
+    watch : ./services
+    watch_options:
+      usePolling: true
+    instances: "max"

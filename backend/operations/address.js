@@ -3,6 +3,40 @@
 const mongo = require("../database/mongo.js");
 
 module.exports = {
+
+
+  async getCityCursor(){
+
+    try{
+
+      return mongo.collection('Address')
+        .find({})
+
+    }catch(error){
+      return {error}
+    }
+
+
+  },
+
+  async getCityByGUID(guid) {
+    try{
+
+
+      const result = await mongo
+        .collection("Address")
+        .findOne({guid: guid },{_id:0})
+
+
+      return {result}
+    }
+
+    catch(error){
+      return {error}
+    }
+
+  },
+
   async getCityByTag(query) {
     try {
       const { tag, isActive } = query;

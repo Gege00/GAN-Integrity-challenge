@@ -2,6 +2,24 @@ version: "3.7"
 
 services:
 
+    rabbitMQ:
+        image: rabbitmq:3-management-alpine
+        container_name: rabbitmq
+
+        ports:
+            - 5672:5672
+            - 15692:15692
+            - 15672:15672
+
+    mongodb:
+        image: mongo:4.0.20
+        expose:
+          - "27017"
+        ports:
+          - "27018:27017"
+
+
+
     backend:
         build:
             context: backend
@@ -12,15 +30,6 @@ services:
           - "8080:5000"
         volumes:
           - ./backend:/home/app
-
-    mongodb:
-        image: mongo:4.0.20
-        expose:
-          - "27017"
-        ports:
-          - "27018:27017"
-
-    mongo-seed:
-       build: ./database-seed
-       links:
-         - mongodb
+        depends_on:
+          - rabbitMQ
+          - mongodb

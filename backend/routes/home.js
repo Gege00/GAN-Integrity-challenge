@@ -1,12 +1,14 @@
 "use strict";
 
 const home = require("express").Router();
-const { authenticateToken } = require("../middlewares/authorization.js");
-const Address = require("../operations/address.js");
-const { query, body,validationResult } = require("express-validator");
+const { query, body, validationResult } = require("express-validator");
 const { distanceInKmBetweenEarthCoordinates } = require("../utils/utils.js");
 
+const { authenticateToken } = require("../middlewares/authorization.js");
 const { sendMessage } = require("../services/publisher.js");
+
+const Address = require("../operations/address.js");
+const AreaResult = require("../operations/result.js");
 
 home.use("/", authenticateToken);
 
@@ -98,7 +100,6 @@ home.get(
       .exists()
       .isInt()
       .toInt()
-
   ],
   async (req, res, next) => {
     try {
@@ -112,7 +113,7 @@ home.get(
       const message = {
         queue: "area_calculation",
         data: {
-          requestId:  requestId,
+          requestId: requestId,
           from: req.query.from,
           distance: req.query.distance
         }
@@ -122,15 +123,29 @@ home.get(
 
       if (!ok) throw new Error();
 
-      return res.status(200).send({
+      return res.status(202).send({
         resultsUrl: `http://127.0.0.1:8080/area-result/${requestId}`
-      }
-      );
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).send(error.message);
     }
   }
 );
+
+home.get("/area-result/:requestId", async (req, res, next) => {
+  try {
+    const { result, error } = await AreaResult.getResult({
+      requestId: req.params.requestId
+    });
+    if (error) throw new Error(error);
+    if (result.error || !result.done) return res.status(202).send();
+    return res.status(200).send(result);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).send(error.message);
+  }
+});
 
 module.exports = home;

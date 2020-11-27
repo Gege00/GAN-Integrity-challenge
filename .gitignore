@@ -5,3 +5,5 @@ coverage
 .vscode
 **/.DS_Store
 .zip
+
+all-cities.json

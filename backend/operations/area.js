@@ -23,7 +23,8 @@ const calculateNearCities = async message => {
       from: message.from,
       distance: message.distance,
       unit: "km",
-      cities: []
+      cities: [],
+      done: false
     });
 
     ({result, error } = await Address.getCityByGUID(message.from));
@@ -49,6 +50,7 @@ const calculateNearCities = async message => {
     const nearCities =[];
     while (await cities.hasNext()) {
       let city = await cities.next();
+      if(city.guid==from.guid) continue;
       let distance = distanceInKmBetweenEarthCoordinates(
         from.latitude,
         from.longitude,
@@ -56,7 +58,7 @@ const calculateNearCities = async message => {
         city.longitude
       );
 
-      if (distance <= message.distance) {
+      if (distance < message.distance) {
         let { guid, longitude, latitude, address, tags } = city;
         nearCities.push({ guid, longitude, latitude, address, tags });
       }
@@ -68,7 +70,9 @@ const calculateNearCities = async message => {
       distance: message.distance,
       unit: "km",
       cities: nearCities,
-      valid: true
+      valid: true,
+      error: null,
+      done:true,
     }));
 
 
@@ -83,7 +87,8 @@ const calculateNearCities = async message => {
       requestId: requestId,
       error: error.message,
       valid: false,
-      cities:[]
+      cities:[],
+      done: true
     });
 
     console.error(error);

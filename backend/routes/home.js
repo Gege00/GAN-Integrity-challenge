@@ -1,8 +1,10 @@
 "use strict";
 
 const home = require("express").Router();
+
 const { query, body, validationResult } = require("express-validator");
 const { distanceInKmBetweenEarthCoordinates } = require("../utils/utils.js");
+const JSONStream = require("JSONStream")
 
 const { authenticateToken } = require("../middlewares/authorization.js");
 const { sendMessage } = require("../services/publisher.js");
@@ -10,23 +12,26 @@ const { sendMessage } = require("../services/publisher.js");
 const Address = require("../operations/address.js");
 const AreaResult = require("../operations/result.js");
 
+
+
 home.use("/", authenticateToken);
 
-// home.get('/',async (req,res,next)=>{
-//
-//     try{
-//
-//
-//       return res.status(200).send("HadME")
-//
-//     }
-//
-//     catch(err){
-//       return res.status(500).send(err.message)
-//     }
-//
-//
-// })
+home.get("/all-cities", async (req, res, next) => {
+  try {
+    const cities = await Address.getCityCursor();
+    res.type("json")
+      // return new JsonStreamStringify(cities.stream()).pipe(res)
+    return cities
+      .stream()
+      .pipe(JSONStream.stringify())
+      .pipe(res);
+
+    cities.pipe({transform: x=> JSON.stringify(x)}).pipe(res)
+
+  } catch (error) {
+    return res.status(500).send(error.message);
+  }
+});
 
 home.get(
   "/cities-by-tag",

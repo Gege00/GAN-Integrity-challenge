@@ -4,6 +4,11 @@ const Address = require("./address.js");
 const AreaResult = require("./result.js");
 const { distanceInKmBetweenEarthCoordinates } = require("../utils/utils.js");
 
+
+//not nice
+//need this for error handling
+let requestId;
+
 const calculateNearCities = async message => {
   try {
 
@@ -11,14 +16,24 @@ const calculateNearCities = async message => {
     console.log(
       `Calculating near cities of ${message.from} within ${message.distance}`
     );
+    requestId=message.requestId
+    //preset the result
+    let { result, error } = await AreaResult.insertOrUpdateResult({
+      requestId: message.requestId,
+      from: message.from,
+      distance: message.distance,
+      unit: "km",
+      cities: []
+    });
 
-
-    let { result, error } = await Address.getCityByGUID(message.from);
+    ({result, error } = await Address.getCityByGUID(message.from));
     if (error) throw new Error(error);
+
+
+    if (result === null)
+          throw new Error(`No city found with guid ${message.from}`);
     const from = result;
 
-    if (result === undefined)
-      throw new Error(`No object find with ${message.from}`);
     // Address.getCityCursor.pipe(
     //
     //   new stream.Writable({
@@ -52,20 +67,23 @@ const calculateNearCities = async message => {
       from: message.from,
       distance: message.distance,
       unit: "km",
-      cities: nearCities
+      cities: nearCities,
+      valid: true
     }));
 
 
     if (error) throw new Error(error);
 
-    return {error};
+    return {result};
 
   } catch (error) {
+
+    //don't know if good idea  to store the error in the results object
     await AreaResult.insertOrUpdateResult({
-      // requestId: body.requestId || null,
-      // distance: body.distance || null,
-      // from: body.from || null,
-      error: error
+      requestId: requestId,
+      error: error.message,
+      valid: false,
+      cities:[]
     });
 
     console.error(error);

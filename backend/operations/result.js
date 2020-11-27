@@ -10,17 +10,7 @@ module.exports = {
         {
           requestId: data.requestId
         },
-        { $set:
-          {
-            requestId:data.requestId,
-            from: data.from,
-            distance: data.distance,
-            unit : "km",
-            modifiedAt: new Date().toISOString(),
-            cities: data.cities,
-            error: data.error || null
-          }
-         },
+        { $set: data },
         { upsert: true }
       );
 

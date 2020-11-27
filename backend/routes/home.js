@@ -9,7 +9,7 @@ const JSONStream = require("JSONStream")
 const { authenticateToken } = require("../middlewares/authorization.js");
 const { sendMessage } = require("../services/publisher.js");
 
-const Address = require("../operations/address.js");
+const City= require("../operations/cities.js");
 const AreaResult = require("../operations/result.js");
 
 
@@ -18,7 +18,7 @@ home.use("/", authenticateToken);
 
 home.get("/all-cities", async (req, res, next) => {
   try {
-    const cities = await Address.getCityCursor();
+    const cities = await City.getCityCursor();
     res.type("json")
       // return new JsonStreamStringify(cities.stream()).pipe(res)
     return cities
@@ -43,7 +43,7 @@ home.get(
         return res.status(500).json({ errors: errors.array() });
       }
 
-      const { result, error } = await Address.getCityByTag(req.query);
+      const { result, error } = await City.getCityByTag(req.query);
 
       if (error) throw new Error(error);
 
@@ -63,12 +63,12 @@ home.get(
       if (!errors.isEmpty()) {
         return res.status(500).json({ errors: errors.array() });
       }
-      let { result, error } = await Address.getCityByGUID(req.query.from);
+      let { result, error } = await City.getCityByGUID(req.query.from);
 
       if (error) throw new Error(error);
       const from = result;
 
-      ({ result, error } = await Address.getCityByGUID(req.query.to));
+      ({ result, error } = await City.getCityByGUID(req.query.to));
 
       if (error) throw new Error(error);
 
@@ -144,7 +144,7 @@ home.get("/area-result/:requestId", async (req, res, next) => {
       requestId: req.params.requestId
     });
     if (error) throw new Error(error);
-    if (result.error || !result.done) return res.status(202).send();
+    if (result ==null || result.error || !result.done) return res.status(202).send();
     return res.status(200).send(result);
   } catch (error) {
     console.error(error);

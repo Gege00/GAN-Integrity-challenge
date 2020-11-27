@@ -1,6 +1,6 @@
 "use strict";
 
-const Address = require("./address.js");
+const City = require("./cities.js");
 const AreaResult = require("./result.js");
 const { distanceInKmBetweenEarthCoordinates } = require("../utils/utils.js");
 
@@ -27,7 +27,7 @@ const calculateNearCities = async message => {
       done: false
     });
 
-    ({result, error } = await Address.getCityByGUID(message.from));
+    ({result, error } = await City.getCityByGUID(message.from));
     if (error) throw new Error(error);
 
 
@@ -46,7 +46,7 @@ const calculateNearCities = async message => {
     //     }
     //   })
 
-    const cities = await Address.getCityCursor();
+    const cities = await City.getCityCursor();
     const nearCities =[];
     while (await cities.hasNext()) {
       let city = await cities.next();

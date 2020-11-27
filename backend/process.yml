@@ -9,6 +9,7 @@ apps:
     env_production:
       NODE_ENV: production
   - script : ./worker.js
+    restart_delay: 100
     watch : true
     watch_options:
       usePolling: true

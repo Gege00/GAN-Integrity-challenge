@@ -17,12 +17,13 @@ module.exports = {
             distance: data.distance,
             unit : "km",
             modifiedAt: new Date().toISOString(),
-            cities: data.cities
+            cities: data.cities,
+            error: data.error || null
           }
          },
         { upsert: true }
       );
-      
+
       return { result };
     } catch (error) {
       return { error };

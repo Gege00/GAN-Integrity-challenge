@@ -9,7 +9,7 @@ apps:
     env_production:
       NODE_ENV: production
   - script : ./worker.js
-    watch : ./services
+    watch : true
     watch_options:
       usePolling: true
-    instances: "max"
+    instances: "1"

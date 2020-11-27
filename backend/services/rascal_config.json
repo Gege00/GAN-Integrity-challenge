@@ -1,0 +1,39 @@
+{
+  "vhosts": {
+    "amqp": {
+      "connection": {
+        "url": "amqp://rabbitmq"
+        },
+         "exchanges": {
+            "area_exchange": {
+               "assert": true,
+               "type": "direct"
+            }
+         },
+         "queues": [
+            "area_calculation"
+         ],
+         "bindings": {
+            "b1": {
+               "source": "area_exchange",
+               "destination": "area_calculation",
+               "destinationType": "queue",
+               "bindingKey": "area_route"
+            }
+         },
+         "publications": {
+            "area_publisher": {
+               "vhost": "amqp",
+               "exchange": "area_exchange",
+               "routingKey": "area_route"
+            }
+         },
+         "subscriptions": {
+            "area_subscription": {
+               "queue": "area_calculation",
+               "prefetch": 1
+            }
+         }
+      }
+   }
+}

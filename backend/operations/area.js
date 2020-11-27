@@ -1,23 +1,24 @@
 "use strict";
 
-const Address = require("../operations/address.js");
-const AreaResult = require("../operations/result.js");
+const Address = require("./address.js");
+const AreaResult = require("./result.js");
 const { distanceInKmBetweenEarthCoordinates } = require("../utils/utils.js");
 
 const calculateNearCities = async message => {
   try {
-    if (message === undefined) return;
-    const nearCities = [];
-    const body = JSON.parse(message.content);
+
+
     console.log(
-      `Calculating near cities of ${body.guid} within ${body.distance}`
+      `Calculating near cities of ${message.from} within ${message.distance}`
     );
-    let { result, error } = await Address.getCityByGUID(body.from);
+
+
+    let { result, error } = await Address.getCityByGUID(message.from);
     if (error) throw new Error(error);
     const from = result;
 
     if (result === undefined)
-      throw new Error(`No object find with ${body.from}`);
+      throw new Error(`No object find with ${message.from}`);
     // Address.getCityCursor.pipe(
     //
     //   new stream.Writable({
@@ -30,7 +31,7 @@ const calculateNearCities = async message => {
     //   })
 
     const cities = await Address.getCityCursor();
-
+    const nearCities =[];
     while (await cities.hasNext()) {
       let city = await cities.next();
       let distance = distanceInKmBetweenEarthCoordinates(
@@ -40,16 +41,16 @@ const calculateNearCities = async message => {
         city.longitude
       );
 
-      if (distance <= body.distance) {
+      if (distance <= message.distance) {
         let { guid, longitude, latitude, address, tags } = city;
         nearCities.push({ guid, longitude, latitude, address, tags });
       }
     }
 
     ({ result, error } = await AreaResult.insertOrUpdateResult({
-      requestId: body.requestId,
-      from: body.from,
-      distance: body.distance,
+      requestId: message.requestId,
+      from: message.from,
+      distance: message.distance,
       unit: "km",
       cities: nearCities
     }));
@@ -57,8 +58,8 @@ const calculateNearCities = async message => {
 
     if (error) throw new Error(error);
 
-    return result;
-    
+    return {error};
+
   } catch (error) {
     await AreaResult.insertOrUpdateResult({
       // requestId: body.requestId || null,
@@ -68,6 +69,7 @@ const calculateNearCities = async message => {
     });
 
     console.error(error);
+    return {error}
   }
 };
 

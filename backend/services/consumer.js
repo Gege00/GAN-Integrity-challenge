@@ -1,10 +1,15 @@
 const amqp = require("amqplib");
 const { calculateNearCities } = require("../operations/area.js");
 
+const rabbitmq = "amqp://rabbitmq?heartbeat=60";
+
+//URI for local use
+// const rabbitmq = "amqp://localhost:5672?heartbeat=60"
+
 const startConsumer = async () => {
   console.log("Consumer starting...");
   try {
-    const conn = await amqp.connect("amqp://rabbitmq?heartbeat=60");
+    const conn = await amqp.connect(rabbitmq);
 
     conn.on("error", function(error) {
       throw new Error("[AMQP] conn error", error.message);

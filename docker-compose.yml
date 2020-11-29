@@ -18,12 +18,12 @@ services:
         ports:
           - "27018:27017"
 
-    # mongo-seed:
-    #     build:
-    #       context: database-seed
-    #       dockerfile: Dockerfile
-    #     depends_on:
-    #       - mongodb
+    mongo-seed:
+        build:
+          context: database-seed
+          dockerfile: Dockerfile
+        depends_on:
+          - mongodb
 
 
     backend:
